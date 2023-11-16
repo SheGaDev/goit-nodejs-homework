@@ -36,8 +36,8 @@ class ContactsManager {
    * @returns {Contact} Created contact
    */
   async addContact(contact) {
-    await this.DatabaseManager.addContact(list);
-    return contact;
+    const newContact = await this.DatabaseManager.addContact(contact);
+    return newContact;
   }
 }
 

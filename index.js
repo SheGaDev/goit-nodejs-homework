@@ -26,7 +26,7 @@ program
           id: nanoid(),
           name: args.name,
           email: args.email,
-          number: args.number,
+          phone: args.phone,
         };
         const addedContact = await manager.addContact(data);
         console.log("Added contact:", addedContact);

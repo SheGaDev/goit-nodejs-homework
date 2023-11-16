@@ -23,7 +23,7 @@ class DatabaseManager {
   async addContact(data) {
     const list = await this.fetchContacts();
     list.push(data);
-    await writeFile(this.databasePath, JSON.stringify(list), null, 2);
+    await writeFile(this.databasePath, JSON.stringify(list, null, 2));
     return data;
   }
 
@@ -37,7 +37,7 @@ class DatabaseManager {
     const contact = list.find((contact) => contact.id === id);
     if (!contact) return null;
     const data = list.filter((contact) => contact.id !== id);
-    await writeFile(this.databasePath, JSON.stringify(data), null, 2);
+    await writeFile(this.databasePath, JSON.stringify(data, null, 2));
     return contact;
   }
 }
