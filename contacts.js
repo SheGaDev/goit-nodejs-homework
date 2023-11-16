@@ -1,0 +1,44 @@
+const DatabaseManager = require("./contactsRepository.js");
+
+class ContactsManager {
+  constructor() {
+    this.DatabaseManager = new DatabaseManager();
+  }
+
+  /**
+   * @returns {Promise<Contact[]>} List contacts
+   */
+  async listContacts() {
+    const list = await this.DatabaseManager.fetchContacts();
+    return list;
+  }
+
+  /**
+   * @param {string} id
+   * @returns {Contact | null} Contact or null;
+   */
+  async getContactById(id) {
+    const list = await this.listContacts();
+    return list.find((contact) => contact.id === id) ?? null;
+  }
+
+  /**
+   * @param {string} id
+   * @returns {Promise<Contact | null>} Deleted contact
+   */
+  async removeContact(id) {
+    const data = await this.DatabaseManager.removeContact(id);
+    return data;
+  }
+
+  /**
+   * @param {Contact} contact
+   * @returns {Contact} Created contact
+   */
+  async addContact(contact) {
+    await this.DatabaseManager.addContact(list);
+    return contact;
+  }
+}
+
+module.exports = ContactsManager;
