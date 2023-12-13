@@ -1,10 +1,10 @@
 const { nanoid } = require("nanoid");
-const { readFile, writeFile } = require("node:fs/promises");
-const { join } = require("node:path");
+const { readFile, writeFile } = require("fs/promises");
+const { join } = require("path");
 
 class DatabaseManager {
   constructor() {
-    this.databasePath = join(process.cwd(), "src", "db", "contacts.json");
+    this.databasePath = join(process.cwd(), "db", "contacts.json");
   }
 
   /**
