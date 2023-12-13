@@ -1,4 +1,4 @@
-const DatabaseManager = require("./contactsRepository.js");
+const DatabaseManager = require("./src/services/contactsRepository.js");
 
 class ContactsManager {
   constructor() {
@@ -15,7 +15,7 @@ class ContactsManager {
 
   /**
    * @param {string} id
-   * @returns {Contact | null} Contact or null;
+   * @returns {Promise<Contact | null>} Contact or null;
    */
   async getContactById(id) {
     const list = await this.listContacts();
