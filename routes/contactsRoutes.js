@@ -1,6 +1,7 @@
 const ContactsController = require("../controllers/ContactsController");
 const validateBody = require("../middlewares/validateBody");
 const validateId = require("../middlewares/validateId");
+const validateStatusBody = require("../middlewares/validateStatusBody");
 const contactsSchema = require("../schemas/contactsSchema");
 const contactsRoutes = require("express").Router();
 
@@ -21,5 +22,7 @@ contactsRoutes.delete(
 );
 
 contactsRoutes.put("/contacts/:id", validateId, ContactsController.updateOne);
+
+contactsRoutes.patch("/contacts/:id/favorite", validateId, validateStatusBody, ContactsController.updateStatusContact)
 
 module.exports = contactsRoutes;

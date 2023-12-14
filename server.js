@@ -1,12 +1,14 @@
 const { join } = require("path");
+
+const configPath = join(__dirname, "config", ".env");
+require("dotenv").config({ path: configPath });
+
 const express = require("express");
 const errorHandler = require("./middlewares/errorHandler");
 const logger = require("morgan");
 const cors = require("cors");
 const Codes = require("./utils/constants/codeAPI");
-
-const configPath = join(__dirname, "config", ".env");
-require("dotenv").config({ path: configPath });
+const connectDb = require("./config/connectDb");
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use((req, res) => {
     .status(Codes.NOT_FOUND)
     .json({ code: Codes.NOT_FOUND, message: "Not found." });
 });
+
+connectDb();
 
 app.listen(process.env.PORT, () => {
   console.log(`Listen on port: ${process.env.PORT}`);

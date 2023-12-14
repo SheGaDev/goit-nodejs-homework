@@ -1,26 +1,13 @@
-const { nanoid } = require("nanoid");
-const { readFile, writeFile } = require("fs/promises");
-const { join } = require("path");
+const contactsModel = require("../../models/contactsModel");
 
 class DatabaseManager {
-  constructor() {
-    this.databasePath = join(process.cwd(), "db", "contacts.json");
-  }
-
-  /**
-   *
-   * @param {Contact[]} data
-   */
-  async writeDb(data) {
-    await writeFile(this.databasePath, JSON.stringify(data, null, 2));
-  }
   /**
    *
    * @returns {Promise<Contact[]>}
    */
   async fetchContacts() {
-    const data = await readFile(this.databasePath);
-    return JSON.parse(data);
+    const data = await contactsModel.find({});
+    return data ?? null;
   }
 
   /**
@@ -29,10 +16,8 @@ class DatabaseManager {
    * @returns {Promise<Contact>}
    */
   async addContact(data) {
-    const list = await this.fetchContacts();
-    list.push(data);
-    await this.writeDb(list);
-    return data;
+    const contact = await contactsModel.create(data);
+    return contact ?? null;
   }
 
   /**
@@ -41,8 +26,8 @@ class DatabaseManager {
    * @returns {Promise<Contact | null>}
    */
   async findById(id) {
-    const list = await this.fetchContacts();
-    return list.find((contact) => contact.id === id) ?? null;
+    const contact = await contactsModel.findById(id);
+    return contact ?? null;
   }
 
   /**
@@ -51,12 +36,8 @@ class DatabaseManager {
    * @returns {Promise<Contact | null>}
    */
   async deleteContact(id) {
-    const list = await this.fetchContacts();
-    const contact = list.find((contact) => contact.id === id);
-    if (!contact) return null;
-    const data = list.filter((contact) => contact.id !== id);
-    await this.writeDb(data);
-    return contact;
+    const contact = await contactsModel.findByIdAndDelete(id);
+    return contact ?? null;
   }
 
   /**
@@ -66,12 +47,27 @@ class DatabaseManager {
    * @returns {Promise<Contact | null>}
    */
   async findByIdAndUpdate(id, data) {
-    const list = await this.fetchContacts();
-    const contactIndex = list.findIndex((contact) => contact.id === id);
-    if (contactIndex === -1) return null;
-    list[contactIndex] = { ...list[contactIndex], ...data };
-    await this.writeDb(list);
-    return list[contactIndex];
+    const contact = await contactsModel.findByIdAndUpdate(
+      id,
+      { ...data },
+      { new: true, runValidators: true }
+    );
+    return contact ?? null;
+  }
+
+  /**
+   *
+   * @param {string} id
+   * @param {Contact} data
+   * @returns {Promise<Contact | null>}
+   */
+  async updateStatusContact(id, data) {
+    const contact = await contactsModel.findByIdAndUpdate(
+      id,
+      { ...data },
+      { new: true, runValidators: true }
+    );
+    return contact ?? null;
   }
 }
 

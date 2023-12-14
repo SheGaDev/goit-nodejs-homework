@@ -9,14 +9,12 @@ class ContactsController {
   }
 
   create = asyncHandler(async (req, res) => {
-    const { name, email, phone } = req.body;
-    const data = {
-      id: nanoid(),
-      name,
-      email,
-      phone,
-    };
-    const contact = await this.DatabaseManager.addContact(data);
+    const contact = await this.DatabaseManager.addContact(req.body);
+    if (!contact) {
+      res.status(Codes.OK);
+      throw new Error("Oops..");
+    }
+
     res
       .status(Codes.CREATE)
       .json({ code: Codes.CREATE, message: "OK", data: contact });
@@ -34,8 +32,7 @@ class ContactsController {
   });
 
   findOne = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const contact = await this.DatabaseManager.findById(id);
+    const contact = await this.DatabaseManager.findById(req.params.id);
     if (!contact) {
       res.status(Codes.NOT_FOUND);
       throw new Error("Not Found.");
@@ -44,9 +41,12 @@ class ContactsController {
   });
 
   updateOne = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const {
+      params: { id },
+      body,
+    } = req;
     const contact = await this.DatabaseManager.findByIdAndUpdate(id, {
-      ...req.body,
+      ...body,
     });
     if (!contact) {
       res.status(Codes.NOT_FOUND);
@@ -65,6 +65,23 @@ class ContactsController {
     res.status(Codes.OK).json({
       code: Codes.OK,
       message: "OK",
+      data: contact,
+    });
+  });
+
+  updateStatusContact = asyncHandler(async (req, res) => {
+    const {
+      params: { id },
+      body,
+    } = req;
+    const contact = await this.DatabaseManager.updateStatusContact(id, body);
+    if (!contact) {
+      res.status(Codes.NOT_FOUND);
+      throw new Error("Not Found.");
+    }
+    res.status(Codes.OK).json({
+      code: Codes.OK,
+      message: 'Status "favorite" updated.',
       data: contact,
     });
   });
