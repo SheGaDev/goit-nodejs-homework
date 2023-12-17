@@ -27,6 +27,8 @@ app.use(cors());
 
 app.use("/api/", require("./routes/contactsRoutes"));
 
+app.use("/users/", require("./routes/usersRoutes"));
+
 app.use(errorHandler);
 app.use((req, res) => {
   res
