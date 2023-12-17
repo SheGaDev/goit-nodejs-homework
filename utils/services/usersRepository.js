@@ -29,7 +29,7 @@ class DatabaseUsersManager {
    */
   async login({ email, password }) {
     const user = await usersModel.findOne({ email });
-    if (!user || bcrypt.compareSync(password, user.password)) return null;
+    if (!user || !bcrypt.compareSync(password, user.password)) return null;
 
     const token = generateToken(user._id, user.subscription);
 
