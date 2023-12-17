@@ -1,11 +1,10 @@
 const asyncHandler = require("express-async-handler");
-const DatabaseManager = require("../utils/services/contactsRepository");
-const { nanoid } = require("nanoid");
+const DatabaseContactsManager = require("../utils/services/contactsRepository");
 const Codes = require("../utils/constants/codeAPI");
 
 class ContactsController {
   constructor() {
-    this.DatabaseManager = new DatabaseManager();
+    this.DatabaseManager = new DatabaseContactsManager();
   }
 
   create = asyncHandler(async (req, res) => {
