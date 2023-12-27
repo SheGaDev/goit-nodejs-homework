@@ -6,11 +6,14 @@ class ContactsController {
   constructor() {
     this.DatabaseManager = new DatabaseContactsManager();
   }
-
+  
   create = asyncHandler(async (req, res) => {
-    const contact = await this.DatabaseManager.addContact(req.body);
+    const contact = await this.DatabaseManager.addContact({
+      ...req.body,
+      owner: req.user.id,
+    });
     if (!contact) {
-      res.status(Codes.OK);
+      res.status(Codes.BAD_REQUEST);
       throw new Error("Oops..");
     }
 
@@ -19,8 +22,20 @@ class ContactsController {
       .json({ code: Codes.CREATE, message: "OK", data: contact });
   });
 
-  fetchAll = asyncHandler(async (_, res) => {
-    const contacts = await this.DatabaseManager.fetchContacts();
+  fetchAll = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, favorite } = req.query;
+    const skip = (page - 1) * limit;
+    const filter = {
+      owner: req.user.id,
+    };
+
+    if (favorite) filter.favorite = favorite;
+
+    const contacts = await this.DatabaseManager.fetchContacts(
+      filter,
+      limit,
+      skip
+    );
     if (!contacts) {
       res.status(Codes.NOT_FOUND);
       throw new Error("Unable to fetch");

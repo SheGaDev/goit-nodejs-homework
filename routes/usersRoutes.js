@@ -11,10 +11,14 @@ usersRoutes.post(
   UsersController.register
 );
 
-usersRoutes.post("/login", validateAuthBody(usersSchema), UsersController.login);
+usersRoutes.post(
+  "/login",
+  validateAuthBody(usersSchema),
+  UsersController.login
+);
 
-usersRoutes.patch("/logout", UsersController.logout);
+usersRoutes.patch("/logout", auth, UsersController.logout);
 
-usersRoutes.get("/current", UsersController.current);
+usersRoutes.get("/current", auth, UsersController.current);
 
 module.exports = usersRoutes;

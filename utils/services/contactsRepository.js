@@ -5,8 +5,12 @@ class DatabaseManager {
    *
    * @returns {Promise<Contact[]>}
    */
-  async fetchContacts() {
-    const data = await contactsModel.find({});
+  async fetchContacts(filter, limit, skip) {
+    const data = await contactsModel.find(
+      { ...filter },
+      "name phone email favorite",
+      { limit, skip }
+    );
     return data ?? null;
   }
 
