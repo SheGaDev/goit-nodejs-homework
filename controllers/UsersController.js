@@ -1,6 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const DatabaseUsersManager = require("../utils/services/usersRepository");
 const Codes = require("../utils/constants/codeAPI");
+const gravatar = require("gravatar");
+const { join } = require("path");
+const Jimp = require("jimp");
+const { rm } = require("fs/promises");
 
 class UsersController {
   constructor() {
@@ -8,7 +12,8 @@ class UsersController {
   }
 
   register = asyncHandler(async (req, res) => {
-    const user = await this.DatabaseManager.create(req.body);
+    const avatarURL = gravatar.url(req.body.email);
+    const user = await this.DatabaseManager.create({ ...req.body, avatarURL });
     if (!user) {
       res.status(Codes.CONFLICT);
       throw new Error("User already exists.");
@@ -80,6 +85,39 @@ class UsersController {
       data: {
         ...updatedData,
       },
+    });
+  });
+
+  updateAvatar = asyncHandler(async (req, res) => {
+    const data = await this.DatabaseManager.fetchUser(req.user.id, true);
+
+    if (!data || data.token !== req.user.token) {
+      res.status(Codes.UNAUTHORIZED);
+      throw new Error("Not authorized.");
+    }
+
+    const { path: tmpFile, originalname } = req.file;
+
+    const login = data.user.email.split("@")[0];
+    const imageName = `${login}_${originalname}`;
+
+    const absolutePath = join("public", "avatars", imageName);
+    const publicPath = join("avatars", imageName);
+
+    const image = await Jimp.read(tmpFile);
+    image.resize(250, 250);
+    image.write(absolutePath);
+
+    await rm(tmpFile);
+
+    const updatedData = await this.DatabaseManager.updateAvatar(
+      req.user.id,
+      publicPath
+    );
+    res.status(Codes.OK).json({
+      code: Codes.OK,
+      status: "OK",
+      data: { ...updatedData },
     });
   });
 }

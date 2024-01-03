@@ -19,6 +19,7 @@ class DatabaseUsersManager {
     return {
       email: user.email,
       subcription: user.subscription,
+      avatarURL: user.avatarURL,
     };
   }
 
@@ -99,6 +100,25 @@ class DatabaseUsersManager {
       user: {
         email: user.email,
         subcription: user.subscription,
+      },
+    };
+  }
+
+  /**
+   *
+   * @param {string} id
+   * @param {string} avatarURL
+   * @returns {Promise<{ user: {email: string, avatarURL: string}}>}
+   */
+  async updateAvatar(id, avatarURL) {
+    const user = await usersModel.findByIdAndUpdate(id, {
+      $set: { avatarURL: avatarURL },
+    });
+
+    return {
+      user: {
+        email: user.email,
+        avatarURL,
       },
     };
   }

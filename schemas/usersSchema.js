@@ -5,4 +5,8 @@ const usersSchema = Joi.object({
   password: Joi.string().required(),
 });
 
-module.exports = usersSchema;
+const avatarsSchema = Joi.object({
+  avatarURL: Joi.any().required(),
+});
+
+module.exports = { usersSchema, avatarsSchema };
