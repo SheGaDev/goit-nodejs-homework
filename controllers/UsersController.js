@@ -4,7 +4,6 @@ const Codes = require("../utils/constants/codeAPI");
 const gravatar = require("gravatar");
 const { join } = require("path");
 const Jimp = require("jimp");
-const { rm } = require("fs/promises");
 
 class UsersController {
   constructor() {
@@ -107,8 +106,6 @@ class UsersController {
     const image = await Jimp.read(tmpFile);
     image.resize(250, 250);
     image.write(absolutePath);
-
-    await rm(tmpFile);
 
     const updatedData = await this.DatabaseManager.updateAvatar(
       req.user.id,
