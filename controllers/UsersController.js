@@ -4,6 +4,8 @@ const Codes = require("../utils/constants/codeAPI");
 const gravatar = require("gravatar");
 const { join } = require("path");
 const Jimp = require("jimp");
+const { nanoid } = require("nanoid");
+const sendMail = require("../utils/emailSender");
 
 class UsersController {
   constructor() {
@@ -12,11 +14,19 @@ class UsersController {
 
   register = asyncHandler(async (req, res) => {
     const avatarURL = gravatar.url(req.body.email);
-    const user = await this.DatabaseManager.create({ ...req.body, avatarURL });
+    const verificationToken = nanoid();
+    const user = await this.DatabaseManager.create({
+      ...req.body,
+      avatarURL,
+      verificationToken,
+    });
     if (!user) {
       res.status(Codes.CONFLICT);
       throw new Error("User already exists.");
     }
+
+    sendMail(req.body.email, verificationToken);
+
     res.status(Codes.CREATE).json({
       code: Codes.CREATE,
       status: "Created",
@@ -115,6 +125,39 @@ class UsersController {
       code: Codes.OK,
       status: "OK",
       data: { ...updatedData },
+    });
+  });
+
+  resendMail = asyncHandler(async (req, res) => {
+    const user = await this.DatabaseManager.resendVerificationToken(
+      req.body.email
+    );
+    if (!user) {
+      res.status(Codes.NOT_FOUND);
+      throw new Error("User not found");
+    }
+    sendMail(user.user.email, user.verificationToken);
+    res.status(Codes.OK).json({
+      code: Codes.OK, message: "Verification email sent",
+      data: {
+        user: {
+          email: user.user.email,
+        },
+      },
+    });
+  });
+  verificationEmail = asyncHandler(async (req, res) => {
+    const { verificationToken } = req.params;
+    const user = await this.DatabaseManager.verification(verificationToken);
+
+    if (!user) {
+      res.status(Codes.NOT_FOUND);
+      throw new Error("User not found");
+    }
+    
+    res.status(Codes.OK).json({
+      code: Codes.OK,
+      message: "Verification successful",
     });
   });
 }

@@ -5,8 +5,12 @@ const usersSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+const emailSchema = Joi.object({
+  email: Joi.string().required(),
+});
+
 const avatarsSchema = Joi.object({
   avatarURL: Joi.any().required(),
 });
 
-module.exports = { usersSchema, avatarsSchema };
+module.exports = { usersSchema, emailSchema, avatarsSchema };

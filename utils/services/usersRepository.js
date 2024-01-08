@@ -122,6 +122,36 @@ class DatabaseUsersManager {
       },
     };
   }
+
+  async verification(verificationToken) {
+    const user = await usersModel.findOne({ verificationToken });
+    if (!user) return null;
+    
+    await user.updateOne({
+      $set: {
+        verify: true,
+        verificationToken: null,
+      },
+    });
+    return {
+      email: user.email,
+      verify: true,
+    };
+  }
+  async resendVerificationToken(email) {
+    const user = await usersModel.findOne({ email });
+
+    if (!user) return null;
+
+    if (user.verify) return null;
+
+    return {
+      user: {
+        email: user.email,
+      },
+      verificationToken: user.verificationToken,
+    };
+  }
 }
 
 module.exports = DatabaseUsersManager;

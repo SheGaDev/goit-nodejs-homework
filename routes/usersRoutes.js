@@ -2,7 +2,11 @@ const UsersController = require("../controllers/UsersController");
 const auth = require("../middlewares/auth");
 const upload = require("../middlewares/upload");
 const validateBody = require("../middlewares/validateBody");
-const { usersSchema, avatarsSchema } = require("../schemas/usersSchema");
+const {
+  usersSchema,
+  emailSchema,
+  avatarsSchema,
+} = require("../schemas/usersSchema");
 
 const usersRoutes = require("express").Router();
 
@@ -24,6 +28,16 @@ usersRoutes.patch(
   upload.single("avatarURL"),
   validateBody(avatarsSchema),
   UsersController.updateAvatar
+);
+
+usersRoutes.post(
+  "/verify",
+  validateBody(emailSchema),
+  UsersController.resendMail
+);
+usersRoutes.get(
+  "/verify/:verificationToken",
+  UsersController.verificationEmail
 );
 
 module.exports = usersRoutes;
