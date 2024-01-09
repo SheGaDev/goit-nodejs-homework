@@ -5,17 +5,17 @@ const gravatar = require("gravatar");
 const { join } = require("path");
 const Jimp = require("jimp");
 const { nanoid } = require("nanoid");
-const sendMail = require("../utils/emailSender");
+const MailService = require("../utils/emailSender");
 
 class UsersController {
   constructor() {
-    this.DatabaseManager = new DatabaseUsersManager();
+    this.manager = DatabaseUsersManager;
   }
 
   register = asyncHandler(async (req, res) => {
     const avatarURL = gravatar.url(req.body.email);
     const verificationToken = nanoid();
-    const user = await this.DatabaseManager.create({
+    const user = await this.manager.create({
       ...req.body,
       avatarURL,
       verificationToken,
@@ -25,7 +25,7 @@ class UsersController {
       throw new Error("User already exists.");
     }
 
-    sendMail(req.body.email, verificationToken);
+    MailService.sendMail(req.body.email, verificationToken);
 
     res.status(Codes.CREATE).json({
       code: Codes.CREATE,
@@ -37,7 +37,7 @@ class UsersController {
   });
 
   login = asyncHandler(async (req, res) => {
-    const data = await this.DatabaseManager.login(req.body);
+    const data = await this.manager.login(req.body);
 
     if (!data) {
       res.status(Codes.BAD_REQUEST);
@@ -52,7 +52,7 @@ class UsersController {
   });
 
   logout = asyncHandler(async (req, res) => {
-    const user = await this.DatabaseManager.logout(req.user.id);
+    const user = await this.manager.logout(req.user.id);
 
     if (!user) {
       res.status(Codes.UNAUTHORIZED);
@@ -66,7 +66,7 @@ class UsersController {
   });
 
   current = asyncHandler(async (req, res) => {
-    const data = await this.DatabaseManager.fetchUser(req.user.id);
+    const data = await this.manager.fetchUser(req.user.id);
     if (!data || data.token !== req.user.token) {
       res.status(Codes.UNAUTHORIZED);
       throw new Error("Not authorized.");
@@ -77,13 +77,13 @@ class UsersController {
   });
 
   updateSubscriptionUser = asyncHandler(async (req, res) => {
-    const data = await this.DatabaseManager.fetchUser(req.user.id);
+    const data = await this.manager.fetchUser(req.user.id);
     if (!data || data.token !== req.user.token) {
       res.status(Codes.UNAUTHORIZED);
       throw new Error("Not authorized.");
     }
 
-    const updatedData = await this.DatabaseManager.updateSubscription(
+    const updatedData = await this.manager.updateSubscription(
       data.id,
       req.body.subscription
     );
@@ -98,7 +98,7 @@ class UsersController {
   });
 
   updateAvatar = asyncHandler(async (req, res) => {
-    const data = await this.DatabaseManager.fetchUser(req.user.id, true);
+    const data = await this.manager.fetchUser(req.user.id, true);
 
     if (!data || data.token !== req.user.token) {
       res.status(Codes.UNAUTHORIZED);
@@ -117,7 +117,7 @@ class UsersController {
     image.resize(250, 250);
     image.write(absolutePath);
 
-    const updatedData = await this.DatabaseManager.updateAvatar(
+    const updatedData = await this.manager.updateAvatar(
       req.user.id,
       publicPath
     );
@@ -129,14 +129,14 @@ class UsersController {
   });
 
   resendMail = asyncHandler(async (req, res) => {
-    const user = await this.DatabaseManager.resendVerificationToken(
+    const user = await this.manager.resendVerificationToken(
       req.body.email
     );
     if (!user) {
       res.status(Codes.NOT_FOUND);
       throw new Error("User not found");
     }
-    sendMail(user.user.email, user.verificationToken);
+    MailService.sendMail(user.user.email, user.verificationToken);
     res.status(Codes.OK).json({
       code: Codes.OK, message: "Verification email sent",
       data: {
@@ -148,7 +148,7 @@ class UsersController {
   });
   verificationEmail = asyncHandler(async (req, res) => {
     const { verificationToken } = req.params;
-    const user = await this.DatabaseManager.verification(verificationToken);
+    const user = await this.manager.verification(verificationToken);
 
     if (!user) {
       res.status(Codes.NOT_FOUND);

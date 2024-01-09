@@ -126,7 +126,7 @@ class DatabaseUsersManager {
   async verification(verificationToken) {
     const user = await usersModel.findOne({ verificationToken });
     if (!user) return null;
-    
+
     await user.updateOne({
       $set: {
         verify: true,
@@ -154,4 +154,4 @@ class DatabaseUsersManager {
   }
 }
 
-module.exports = DatabaseUsersManager;
+module.exports = new DatabaseUsersManager();

@@ -1,6 +1,6 @@
 const contactsModel = require("../../models/contactsModel");
 
-class DatabaseManager {
+class DatabaseContactsManager {
   /**
    *
    * @returns {Promise<Contact[]>}
@@ -75,4 +75,4 @@ class DatabaseManager {
   }
 }
 
-module.exports = DatabaseManager;
+module.exports = new DatabaseContactsManager();

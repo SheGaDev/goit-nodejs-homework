@@ -4,11 +4,11 @@ const Codes = require("../utils/constants/codeAPI");
 
 class ContactsController {
   constructor() {
-    this.DatabaseManager = new DatabaseContactsManager();
+    this.manager = DatabaseContactsManager;
   }
   
   create = asyncHandler(async (req, res) => {
-    const contact = await this.DatabaseManager.addContact({
+    const contact = await this.manager.addContact({
       ...req.body,
       owner: req.user.id,
     });
@@ -31,7 +31,7 @@ class ContactsController {
 
     if (favorite) filter.favorite = favorite;
 
-    const contacts = await this.DatabaseManager.fetchContacts(
+    const contacts = await this.manager.fetchContacts(
       filter,
       limit,
       skip
@@ -46,7 +46,7 @@ class ContactsController {
   });
 
   findOne = asyncHandler(async (req, res) => {
-    const contact = await this.DatabaseManager.findById(req.params.id);
+    const contact = await this.manager.findById(req.params.id);
     if (!contact) {
       res.status(Codes.NOT_FOUND);
       throw new Error("Not Found.");
@@ -59,7 +59,7 @@ class ContactsController {
       params: { id },
       body,
     } = req;
-    const contact = await this.DatabaseManager.findByIdAndUpdate(id, {
+    const contact = await this.manager.findByIdAndUpdate(id, {
       ...body,
     });
     if (!contact) {
@@ -71,7 +71,7 @@ class ContactsController {
 
   deleteOne = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const contact = await this.DatabaseManager.deleteContact(id);
+    const contact = await this.manager.deleteContact(id);
     if (!contact) {
       res.status(Codes.NOT_FOUND);
       throw new Error("Not Found.");
@@ -88,7 +88,7 @@ class ContactsController {
       params: { id },
       body,
     } = req;
-    const contact = await this.DatabaseManager.updateStatusContact(id, body);
+    const contact = await this.manager.updateStatusContact(id, body);
     if (!contact) {
       res.status(Codes.NOT_FOUND);
       throw new Error("Not Found.");
